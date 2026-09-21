@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF8D7"/>
+      <stop offset="45%" stop-color="#dfc288"/>
+      <stop offset="100%" stop-color="#b89355"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#191a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer Rounded Square with Subtle Gold Border -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="2"/>
+  
+  <!-- Elegant Serif Monogram "F" -->
+  <path d="M 22 17 
+           L 44 17 
+           C 44.8 17 45.5 17.7 45.5 18.5 
+           L 45.5 21 
+           C 45.5 21.8 44.8 22.5 44 22.5 
+           L 29 22.5 
+           L 29 29.5 
+           L 40 29.5 
+           C 40.8 29.5 41.5 30.2 41.5 31 
+           L 41.5 33.5 
+           C 41.5 34.3 40.8 35 40 35 
+           L 29 35 
+           L 29 45.5 
+           L 36 45.5 
+           C 36.8 45.5 37.5 46.2 37.5 47 
+           L 37.5 48.5 
+           L 19.5 48.5 
+           L 19.5 47 
+           C 19.5 46.2 20.2 45.5 21 45.5 
+           L 23.5 45.5 
+           L 23.5 20.5 
+           L 21 20.5 
+           C 20.2 20.5 19.5 19.8 19.5 19 
+           L 19.5 17.5 
+           Z" 
+        fill="url(#goldGrad)"/>
+        
+  <!-- Subtle diamond accent dot -->
+  <polygon points="46,14 48,16 46,18 44,16" fill="url(#goldGrad)"/>
+</svg>
