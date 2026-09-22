@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initScrollTop();
   initRevealAnimations();
+  initHeroVideo();
   initHlsVideoReviews();
   initEnhancedSmoothScrolling();
 });
@@ -343,6 +344,47 @@ function initEnhancedSmoothScrolling() {
   } else {
     // Fallback native smooth scroll
     document.documentElement.style.scrollBehavior = 'smooth';
+  }
+}
+
+/**
+ * 7b. Hero Section HLS Video Stream Initialization
+ */
+function initHeroVideo() {
+  const heroVideo = document.getElementById('heroVideoMedia');
+  if (!heroVideo) return;
+
+  const hlsSrc = heroVideo.getAttribute('data-hls-src');
+  if (!hlsSrc) return;
+
+  // Handle seamless loop on stream completion
+  heroVideo.addEventListener('ended', () => {
+    heroVideo.currentTime = 0;
+    heroVideo.play().catch(() => {});
+  });
+
+  if (window.Hls && Hls.isSupported()) {
+    const hls = new Hls({
+      autoStartLoad: true,
+      startLevel: -1,
+      capLevelToPlayerSize: true
+    });
+    hls.loadSource(hlsSrc);
+    hls.attachMedia(heroVideo);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      heroVideo.play().catch(err => {
+        console.warn('Hero video autoplay deferred:', err);
+      });
+    });
+    heroVideo.hlsInstance = hls;
+  } else if (heroVideo.canPlayType('application/vnd.apple.mpegurl')) {
+    // Native Apple HLS (Safari on iOS / macOS)
+    heroVideo.src = hlsSrc;
+    heroVideo.addEventListener('loadedmetadata', () => {
+      heroVideo.play().catch(err => {
+        console.warn('Hero video autoplay deferred:', err);
+      });
+    });
   }
 }
 
