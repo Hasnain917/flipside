@@ -645,9 +645,9 @@ function initHlsVideoReviews() {
 }
 
 /**
- * 11. Luxury Animated Gold Lines Background System
- * Renders smooth flowing golden streamlines, architectural diagonal beams,
- * traveling light pulses, pulsing nodes, and drifting stardust.
+ * 11. Minimal Luxury Background System
+ * Clean, subtle architectural vertical lines across the background
+ * with soft golden particles gliding smoothly from top to bottom.
  */
 function initGoldLinesAnimation() {
   const canvas = document.getElementById('goldLinesCanvas');
@@ -662,16 +662,12 @@ function initGoldLinesAnimation() {
   let animationFrameId = null;
   let isTabActive = true;
 
-  // Interaction coordinates
-  const mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000, isHovered: false };
-  let scrollY = window.scrollY || 0;
-  let targetScrollY = scrollY;
+  // Mouse tracking for subtle proximity response
+  const mouse = { x: -1000, y: -1000, active: false };
 
-  // Geometry holders
-  let diagonalLines = [];
-  let flowingWaves = [];
-  let constellationNodes = [];
-  let dustParticles = [];
+  // Data structures
+  let lines = [];
+  let particles = [];
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -686,165 +682,59 @@ function initGoldLinesAnimation() {
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
 
-    initGeometry();
+    initSystem();
   }
 
-  function initGeometry() {
+  function initSystem() {
     const isMobile = width < 768;
+    lines = [];
+    particles = [];
 
-    // 1. Architectural Diagonal Lines (Luxury 34-degree gold laser beams)
-    diagonalLines = [];
-    const diagCount = isMobile ? 6 : 10;
-    const spacing = width / (diagCount - 1);
-    
-    for (let i = 0; i < diagCount; i++) {
-      const startX = -width * 0.25 + i * spacing * 1.35;
-      const startY = -120;
-      const angle = 34 * (Math.PI / 180);
-      const length = Math.sqrt(width * width + height * height) * 1.25;
-      const endX = startX + Math.cos(angle) * length;
-      const endY = startY + Math.sin(angle) * length;
+    // 1. Vertical architectural lines evenly spaced
+    const desiredSpacing = isMobile ? 65 : 120;
+    const count = Math.max(3, Math.floor(width / desiredSpacing));
+    const step = width / count;
 
-      const pulses = [];
-      const pulseCount = isMobile ? 1 : (i % 2 === 0 ? 2 : 1);
-      for (let p = 0; p < pulseCount; p++) {
-        pulses.push({
-          progress: Math.random(),
-          speed: (0.0007 + Math.random() * 0.001) * (isMobile ? 1.15 : 1),
-          length: isMobile ? 70 + Math.random() * 60 : 100 + Math.random() * 120,
-          size: 2.2 + Math.random() * 1.3,
-          color: Math.random() > 0.4 ? '#dfc288' : '#fff3db'
-        });
-      }
-
-      diagonalLines.push({
-        x1: startX,
-        y1: startY,
-        x2: endX,
-        y2: endY,
-        length,
-        baseAlpha: isMobile ? 0.22 : 0.26,
-        lineWidth: isMobile ? 1 : 1.1,
-        pulses
+    for (let i = 0; i <= count; i++) {
+      lines.push({
+        x: Math.round(i * step),
+        baseAlpha: isMobile ? 0.04 : 0.05
       });
     }
 
-    // 2-3 counter-diagonal accent lines for intersection dynamics
-    const counterCount = isMobile ? 2 : 3;
-    for (let j = 0; j < counterCount; j++) {
-      const startX = width * 1.2 - j * (width / counterCount);
-      const startY = -80;
-      const angle = 146 * (Math.PI / 180);
-      const length = Math.sqrt(width * width + height * height) * 1.1;
-      const endX = startX + Math.cos(angle) * length;
-      const endY = startY + Math.sin(angle) * length;
+    // 2. Soft particles traveling down the lines
+    // Restrained count for a calm, ultra-luxurious feel
+    const particleCount = isMobile
+      ? Math.floor(lines.length * 1.2)
+      : Math.floor(lines.length * 1.8);
 
-      const pulses = [{
-        progress: Math.random(),
-        speed: 0.0008 + Math.random() * 0.0008,
-        length: 70 + Math.random() * 80,
-        size: 2,
-        color: '#f5e6c8'
-      }];
-
-      diagonalLines.push({
-        x1: startX,
-        y1: startY,
-        x2: endX,
-        y2: endY,
-        length,
-        baseAlpha: 0.16,
-        lineWidth: 0.9,
-        pulses
-      });
-    }
-
-    // 2. Flowing Golden Wave Beziers (Harmonic silk curves across background)
-    flowingWaves = [];
-    const waveCount = isMobile ? 3 : 4;
-    const waveYRatio = isMobile ? [0.22, 0.52, 0.82] : [0.18, 0.42, 0.68, 0.90];
-
-    for (let w = 0; w < waveCount; w++) {
-      const amp = (isMobile ? 30 : 60) + Math.random() * 20;
-      const freq = (0.0012 + Math.random() * 0.0008) * (isMobile ? 1.4 : 1);
-      const speed = 0.0006 + Math.random() * 0.0006;
-      const phase = Math.random() * Math.PI * 2;
-
-      const wavePulses = [];
-      const wavePulseCount = isMobile ? 1 : 2;
-      for (let wp = 0; wp < wavePulseCount; wp++) {
-        wavePulses.push({
-          progress: Math.random(),
-          speed: 0.001 + Math.random() * 0.001,
-          radius: 2.8,
-          trailLen: isMobile ? 45 : 65
-        });
-      }
-
-      flowingWaves.push({
-        baseYRatio: waveYRatio[w],
-        amplitude: amp,
-        frequency: freq,
-        speed,
-        phase,
-        lineWidth: isMobile ? 1.2 : 1.4,
-        alpha: isMobile ? 0.38 : 0.36,
-        pulses: wavePulses
-      });
-    }
-
-    // 3. Constellation Intersection Nodes (Breathing gold stars)
-    constellationNodes = [];
-    const nodeCount = isMobile ? 12 : 20;
-    for (let n = 0; n < nodeCount; n++) {
-      constellationNodes.push({
-        xRatio: 0.05 + Math.random() * 0.9,
-        yRatio: 0.08 + Math.random() * 0.84,
-        baseR: 1.5 + Math.random() * 1.5,
-        phase: Math.random() * Math.PI * 2,
-        speed: 1.6 + Math.random() * 1.4
-      });
-    }
-
-    // 4. Drifting Golden Dust Sparkles
-    dustParticles = [];
-    const dustCount = isMobile ? 18 : 32;
-    for (let d = 0; d < dustCount; d++) {
-      dustParticles.push({
-        x: Math.random() * width,
+    for (let p = 0; p < particleCount; p++) {
+      const lineIdx = Math.floor(Math.random() * lines.length);
+      particles.push({
+        lineIdx,
+        x: lines[lineIdx].x,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.25,
-        vy: -0.2 - Math.random() * 0.35,
-        radius: 0.8 + Math.random() * 1.3,
-        alpha: 0.25 + Math.random() * 0.45,
-        phase: Math.random() * Math.PI * 2
+        vy: 0.35 + Math.random() * 0.65, // Gentle downward speed
+        radius: 1.0 + Math.random() * 1.2, // Tiny delicate beads
+        trailLen: 18 + Math.random() * 24, // Subtle light trail
+        alpha: 0.35 + Math.random() * 0.35, // Soft opacity
+        pulsePhase: Math.random() * Math.PI * 2,
+        pulseSpeed: 1.5 + Math.random() * 1.5
       });
     }
   }
 
-  // Pointer & Scroll Event Handlers
-  const handlePointerMove = (clientX, clientY) => {
-    mouse.targetX = clientX;
-    mouse.targetY = clientY;
-    mouse.isHovered = true;
-  };
-
+  // Pointer events for soft proximity interaction
   window.addEventListener('mousemove', (e) => {
-    handlePointerMove(e.clientX, e.clientY);
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e) => {
-    if (e.touches && e.touches[0]) {
-      handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    mouse.active = true;
   }, { passive: true });
 
   window.addEventListener('mouseleave', () => {
-    mouse.isHovered = false;
-  }, { passive: true });
-
-  window.addEventListener('scroll', () => {
-    targetScrollY = window.scrollY || 0;
+    mouse.active = false;
+    mouse.x = -1000;
+    mouse.y = -1000;
   }, { passive: true });
 
   let resizeTimeout;
@@ -861,9 +751,9 @@ function initGoldLinesAnimation() {
     }
   });
 
-  // Render Engine
+  // Render Loop
   let lastTime = performance.now();
-  let totalTime = 0;
+  let elapsed = 0;
 
   function render(now) {
     if (!isTabActive) {
@@ -873,199 +763,122 @@ function initGoldLinesAnimation() {
 
     const dt = Math.min((now - lastTime) / 1000, 0.1);
     lastTime = now;
-    totalTime += dt;
-
-    if (mouse.isHovered) {
-      mouse.x += (mouse.targetX - mouse.x) * 0.08;
-      mouse.y += (mouse.targetY - mouse.y) * 0.08;
-    } else {
-      mouse.x += (-1000 - mouse.x) * 0.05;
-      mouse.y += (-1000 - mouse.y) * 0.05;
-    }
-    scrollY += (targetScrollY - scrollY) * 0.08;
+    elapsed += dt;
 
     ctx.clearRect(0, 0, width, height);
 
-    const parallaxY = (scrollY * 0.12) % height;
+    // --- 1. RENDER FAINT VERTICAL LINES ---
+    // Pre-create vertical fade gradient
+    const lineGrad = ctx.createLinearGradient(0, 0, 0, height);
+    lineGrad.addColorStop(0, 'rgba(223, 194, 136, 0.00)');
+    lineGrad.addColorStop(0.12, 'rgba(223, 194, 136, 0.045)');
+    lineGrad.addColorStop(0.5, 'rgba(223, 194, 136, 0.055)');
+    lineGrad.addColorStop(0.88, 'rgba(223, 194, 136, 0.045)');
+    lineGrad.addColorStop(1, 'rgba(223, 194, 136, 0.00)');
 
-    // --- 1. ARCHITECTURAL DIAGONAL LINES & TRAVELING LIGHT PACKETS ---
-    for (let i = 0; i < diagonalLines.length; i++) {
-      const line = diagonalLines[i];
-      const dx = line.x2 - line.x1;
-      const dy = line.y2 - line.y1;
+    ctx.lineWidth = 1;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
 
-      // Base line gradient stroke
-      const grad = ctx.createLinearGradient(line.x1, line.y1, line.x2, line.y2);
-      grad.addColorStop(0, 'rgba(223, 194, 136, 0.02)');
-      grad.addColorStop(0.2, `rgba(223, 194, 136, ${line.baseAlpha})`);
-      grad.addColorStop(0.7, `rgba(245, 230, 200, ${line.baseAlpha * 1.25})`);
-      grad.addColorStop(1, 'rgba(182, 143, 68, 0.02)');
+      // Subtle mouse glow near vertical line
+      let extraAlpha = 0;
+      if (mouse.active) {
+        const dist = Math.abs(mouse.x - line.x);
+        if (dist < 80) {
+          extraAlpha = (1 - dist / 80) * 0.04;
+        }
+      }
 
       ctx.beginPath();
-      ctx.moveTo(line.x1, line.y1);
-      ctx.lineTo(line.x2, line.y2);
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = line.lineWidth;
+      ctx.moveTo(line.x + 0.5, 0);
+      ctx.lineTo(line.x + 0.5, height);
+
+      if (extraAlpha > 0) {
+        ctx.strokeStyle = `rgba(223, 194, 136, ${0.05 + extraAlpha})`;
+      } else {
+        ctx.strokeStyle = lineGrad;
+      }
       ctx.stroke();
+    }
 
-      // Traveling light pulses
-      for (let p = 0; p < line.pulses.length; p++) {
-        const pulse = line.pulses[p];
-        pulse.progress += pulse.speed;
-        if (pulse.progress > 1) {
-          pulse.progress = 0;
+    // --- 2. RENDER SOFT PARTICLES MOVING TOP TO BOTTOM ---
+    for (let p = 0; p < particles.length; p++) {
+      const pt = particles[p];
+
+      // Move particle straight down
+      pt.y += pt.vy * (dt * 60);
+
+      // Keep aligned to line if window resized
+      if (lines[pt.lineIdx]) {
+        pt.x = lines[pt.lineIdx].x + 0.5;
+      }
+
+      // Edge fading (soft entry at top, soft fadeout at bottom)
+      let edgeFade = 1;
+      const topFadeDist = height * 0.12;
+      const botFadeDist = height * 0.12;
+
+      if (pt.y < topFadeDist) {
+        edgeFade = Math.max(0, pt.y / topFadeDist);
+      } else if (pt.y > height - botFadeDist) {
+        edgeFade = Math.max(0, (height - pt.y) / botFadeDist);
+      }
+
+      // Subtle breathing pulse
+      const pulse = 0.85 + Math.sin(elapsed * pt.pulseSpeed + pt.pulsePhase) * 0.15;
+
+      // Mouse proximity brightness
+      let mouseBoost = 1;
+      if (mouse.active) {
+        const dx = pt.x - mouse.x;
+        const dy = pt.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          mouseBoost = 1 + (1 - dist / 100) * 0.6;
         }
+      }
 
-        const curX = line.x1 + dx * pulse.progress;
-        const curY = line.y1 + dy * pulse.progress;
+      const currentAlpha = Math.min(1, pt.alpha * edgeFade * pulse * mouseBoost);
 
-        const tailProgress = Math.max(0, pulse.progress - (pulse.length / line.length));
-        const tailX = line.x1 + dx * tailProgress;
-        const tailY = line.y1 + dy * tailProgress;
+      if (currentAlpha > 0.01) {
+        // Subtle tail gliding above particle
+        const tailY = pt.y - pt.trailLen;
+        const trailGrad = ctx.createLinearGradient(pt.x, tailY, pt.x, pt.y);
+        trailGrad.addColorStop(0, 'rgba(223, 194, 136, 0)');
+        trailGrad.addColorStop(1, `rgba(223, 194, 136, ${currentAlpha * 0.45})`);
 
-        const pulseGrad = ctx.createLinearGradient(tailX, tailY, curX, curY);
-        pulseGrad.addColorStop(0, 'rgba(223, 194, 136, 0)');
-        pulseGrad.addColorStop(0.65, 'rgba(223, 194, 136, 0.65)');
-        pulseGrad.addColorStop(1, pulse.color);
-
-        ctx.save();
         ctx.beginPath();
-        ctx.moveTo(tailX, tailY);
-        ctx.lineTo(curX, curY);
-        ctx.strokeStyle = pulseGrad;
-        ctx.lineWidth = line.lineWidth + 1.2;
-        ctx.shadowColor = 'rgba(223, 194, 136, 0.88)';
-        ctx.shadowBlur = 9;
+        ctx.moveTo(pt.x, tailY);
+        ctx.lineTo(pt.x, pt.y);
+        ctx.strokeStyle = trailGrad;
+        ctx.lineWidth = 1;
         ctx.stroke();
 
+        // Soft outer aura
         ctx.beginPath();
-        ctx.arc(curX, curY, pulse.size, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = '#dfc288';
-        ctx.shadowBlur = 12;
+        ctx.arc(pt.x, pt.y, pt.radius * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(223, 194, 136, ${currentAlpha * 0.22})`;
         ctx.fill();
-        ctx.restore();
-      }
-    }
 
-    // --- 2. FLOWING GOLDEN WAVES ---
-    for (let w = 0; w < flowingWaves.length; w++) {
-      const wave = flowingWaves[w];
-      const baseY = wave.baseYRatio * height + Math.sin(totalTime * 0.4 + w) * 15;
-
-      ctx.save();
-      ctx.beginPath();
-
-      const step = 8;
-      const points = [];
-
-      for (let x = 0; x <= width + step; x += step) {
-        let y = baseY + 
-          Math.sin(x * wave.frequency + totalTime * wave.speed * 60 + wave.phase) * wave.amplitude +
-          Math.cos(x * (wave.frequency * 1.8) - totalTime * (wave.speed * 40)) * (wave.amplitude * 0.35);
-
-        if (mouse.isHovered) {
-          const distX = x - mouse.x;
-          const distY = y - mouse.y;
-          const dist = Math.sqrt(distX * distX + distY * distY);
-          if (dist < 140) {
-            const factor = (1 - dist / 140) * 20;
-            y += (distY > 0 ? factor : -factor);
-          }
-        }
-
-        points.push({ x, y });
-        if (x === 0) {
-          ctx.moveTo(x, y);
-        } else {
-          ctx.lineTo(x, y);
-        }
+        // Bright delicate center bead
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 245, 224, ${currentAlpha})`;
+        ctx.fill();
       }
 
-      const waveGrad = ctx.createLinearGradient(0, 0, width, 0);
-      waveGrad.addColorStop(0, 'rgba(223, 194, 136, 0.04)');
-      waveGrad.addColorStop(0.3, `rgba(245, 230, 200, ${wave.alpha})`);
-      waveGrad.addColorStop(0.7, `rgba(223, 194, 136, ${wave.alpha * 1.3})`);
-      waveGrad.addColorStop(1, 'rgba(182, 143, 68, 0.04)');
-
-      ctx.strokeStyle = waveGrad;
-      ctx.lineWidth = wave.lineWidth;
-      ctx.stroke();
-
-      for (let wp = 0; wp < wave.pulses.length; wp++) {
-        const pulse = wave.pulses[wp];
-        pulse.progress += pulse.speed;
-        if (pulse.progress > 1) {
-          pulse.progress = 0;
+      // Reset when reaching bottom
+      if (pt.y > height + 20) {
+        pt.y = -10 - Math.random() * 60;
+        pt.lineIdx = Math.floor(Math.random() * lines.length);
+        if (lines[pt.lineIdx]) {
+          pt.x = lines[pt.lineIdx].x + 0.5;
         }
-
-        const pointIndex = Math.floor(pulse.progress * (points.length - 1));
-        const pt = points[pointIndex];
-        if (pt) {
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, pulse.radius, 0, Math.PI * 2);
-          ctx.fillStyle = '#fff4db';
-          ctx.shadowColor = 'rgba(223, 194, 136, 0.95)';
-          ctx.shadowBlur = 10;
-          ctx.fill();
-
-          ctx.beginPath();
-          ctx.arc(pt.x, pt.y, pulse.radius * 2.4, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(223, 194, 136, 0.22)';
-          ctx.fill();
-        }
+        pt.vy = 0.35 + Math.random() * 0.65;
+        pt.radius = 1.0 + Math.random() * 1.2;
+        pt.alpha = 0.35 + Math.random() * 0.35;
       }
-
-      ctx.restore();
     }
-
-    // --- 3. CONSTELLATION INTERSECTION NODES ---
-    for (let n = 0; n < constellationNodes.length; n++) {
-      const node = constellationNodes[n];
-      const nx = node.xRatio * width;
-      const ny = (node.yRatio * height + parallaxY) % height;
-      const pulseVal = Math.sin(totalTime * node.speed + node.phase);
-      const r = Math.max(0.5, node.baseR + pulseVal * 1.0);
-      const glowAlpha = 0.45 + pulseVal * 0.35;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(nx, ny, r * 2.6, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(223, 194, 136, ${glowAlpha * 0.28})`;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(nx, ny, r, 0, Math.PI * 2);
-      ctx.fillStyle = pulseVal > 0.25 ? '#fff5e0' : '#dfc288';
-      ctx.shadowColor = 'rgba(245, 230, 200, 0.9)';
-      ctx.shadowBlur = 8;
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // --- 4. DRIFTING GOLD STARDUST ---
-    ctx.save();
-    for (let d = 0; d < dustParticles.length; d++) {
-      const p = dustParticles[d];
-      p.x += p.vx + Math.sin(totalTime * 0.8 + p.phase) * 0.15;
-      p.y += p.vy;
-
-      if (p.y < -10) {
-        p.y = height + 10;
-        p.x = Math.random() * width;
-      }
-      if (p.x < -10) p.x = width + 10;
-      if (p.x > width + 10) p.x = -10;
-
-      const shimmer = 0.5 + Math.sin(totalTime * 2 + p.phase) * 0.5;
-      const currentAlpha = p.alpha * (0.4 + shimmer * 0.6);
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(245, 230, 200, ${currentAlpha})`;
-      ctx.fill();
-    }
-    ctx.restore();
 
     animationFrameId = requestAnimationFrame(render);
   }
@@ -1073,5 +886,6 @@ function initGoldLinesAnimation() {
   resize();
   animationFrameId = requestAnimationFrame(render);
 }
+
 
 
