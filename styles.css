@@ -708,7 +708,7 @@ p {
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid rgba(245, 230, 200, 0.16);
-  background: var(--bg-card);
+  background: #080808;
   box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.75), 0 0 35px -5px rgba(223, 194, 136, 0.14);
 }
 
@@ -717,6 +717,7 @@ p {
   height: 100%;
   object-fit: cover;
   display: block;
+  background: #080808;
 }
 
 .hero-video-ambient-overlay {

@@ -354,6 +354,8 @@ function initHeroVideo() {
   const heroVideo = document.getElementById('heroVideoMedia');
   if (!heroVideo) return;
 
+  heroVideo.removeAttribute('poster');
+
   const hlsSrc = heroVideo.getAttribute('data-hls-src');
   if (!hlsSrc) return;
 
