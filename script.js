@@ -349,44 +349,96 @@ function initEnhancedSmoothScrolling() {
 }
 
 /**
- * 7b. Hero Section HLS Video Stream Initialization
+ * 7b. Hero Section 5-Card Video Showcase & Carousel Initialization
  */
 function initHeroVideo() {
-  const heroVideo = document.getElementById('heroVideoMedia');
-  if (!heroVideo) return;
+  const heroCards = document.querySelectorAll('.hero-card');
+  const prevBtn = document.getElementById('heroArrowPrev');
+  const nextBtn = document.getElementById('heroArrowNext');
+  const track = document.getElementById('heroCarouselTrack');
 
-  heroVideo.removeAttribute('poster');
+  if (!heroCards.length) return;
 
-  const hlsSrc = heroVideo.getAttribute('data-hls-src');
-  if (!hlsSrc) return;
+  let activeIndex = 2; // Default center card (Card 3: Web Applications)
 
-  // Handle seamless loop on stream completion
-  heroVideo.addEventListener('ended', () => {
-    heroVideo.currentTime = 0;
-    heroVideo.play().catch(() => {});
+  // Initialize HLS for each card video
+  heroCards.forEach((card, index) => {
+    const video = card.querySelector('.hero-card-video');
+    if (!video) return;
+
+    const hlsSrc = video.getAttribute('data-hls-src');
+    if (hlsSrc) {
+      if (window.Hls && Hls.isSupported()) {
+        const hls = new Hls({
+          autoStartLoad: true,
+          startLevel: -1,
+          capLevelToPlayerSize: true
+        });
+        hls.loadSource(hlsSrc);
+        hls.attachMedia(video);
+        video.hlsInstance = hls;
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = hlsSrc;
+      }
+    }
+
+    video.addEventListener('ended', () => {
+      video.currentTime = 0;
+      video.play().catch(() => {});
+    });
+
+    // If initial active card, start playback
+    if (index === activeIndex) {
+      video.addEventListener('loadedmetadata', () => {
+        video.play().catch(() => {});
+      });
+      video.play().catch(() => {});
+    }
+
+    // Card click event
+    card.addEventListener('click', () => {
+      setActiveHeroCard(index);
+    });
   });
 
-  if (window.Hls && Hls.isSupported()) {
-    const hls = new Hls({
-      autoStartLoad: true,
-      startLevel: -1,
-      capLevelToPlayerSize: true
+  function setActiveHeroCard(newIndex) {
+    if (newIndex < 0) newIndex = heroCards.length - 1;
+    if (newIndex >= heroCards.length) newIndex = 0;
+    activeIndex = newIndex;
+
+    heroCards.forEach((card, idx) => {
+      const video = card.querySelector('.hero-card-video');
+      const isCurrent = idx === activeIndex;
+
+      if (isCurrent) {
+        card.classList.add('active');
+        if (video) {
+          video.play().catch(() => {});
+        }
+        // Scroll into view on mobile
+        if (window.innerWidth <= 1024 && track) {
+          card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      } else {
+        card.classList.remove('active');
+        if (video) {
+          video.pause();
+        }
+      }
     });
-    hls.loadSource(hlsSrc);
-    hls.attachMedia(heroVideo);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      heroVideo.play().catch(err => {
-        console.warn('Hero video autoplay deferred:', err);
-      });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setActiveHeroCard(activeIndex - 1);
     });
-    heroVideo.hlsInstance = hls;
-  } else if (heroVideo.canPlayType('application/vnd.apple.mpegurl')) {
-    // Native Apple HLS (Safari on iOS / macOS)
-    heroVideo.src = hlsSrc;
-    heroVideo.addEventListener('loadedmetadata', () => {
-      heroVideo.play().catch(err => {
-        console.warn('Hero video autoplay deferred:', err);
-      });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setActiveHeroCard(activeIndex + 1);
     });
   }
 }
